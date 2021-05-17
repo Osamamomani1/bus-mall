@@ -8,6 +8,12 @@
  let maxAttempts = 25;
 //  let maxAttempts1 = prompt('enter your maximum Attempts you want, its 25 by defult')
 //  maxAttempts1 = parseInt (maxAttempts1)
+
+let productname = [];
+let productvote = [];
+let productshown = [];
+let prevproduct = [];
+let newproduct = [];
  
  
  
@@ -17,11 +23,12 @@ let thirdImageIndex;
 
  //Constractor 
  function ProDucts(name , source){
-     this.name=name
-     this.source=source
+     this.name=name;
+     this.source=source;
      this.votes = 0 ;
      this.shown = 0 ;
      allProduct.push(this);
+     productname.push(this.name);
  }
  
 new ProDucts ('bag','images/bag.jpg');
@@ -54,15 +61,31 @@ function generateRandomIndex() {
 
 
 // Render function
-function renderThreeImages(){
+
     firstImageIndex = generateRandomIndex();
     secondImageIndex = generateRandomIndex();
     thirdImageIndex = generateRandomIndex();
+
+function renderThreeImages(){
+    
+    
+
+
     while (firstImageIndex===secondImageIndex || firstImageIndex===thirdImageIndex
-        || secondImageIndex===thirdImageIndex) {
+        || secondImageIndex===thirdImageIndex || newproduct.includes(firstImageIndex)
+         || newproduct.includes(secondImageIndex) || newproduct.includes(thirdImageIndex)){
             firstImageIndex = generateRandomIndex();
             secondImageIndex = generateRandomIndex();
+            thirdImageIndex = generateRandomIndex();
+
+             
+           
+
     }
+               console.log(newproduct) ;
+               newproduct=[];
+               newproduct.push(firstImageIndex,secondImageIndex,thirdImageIndex)
+
 
     firstImageElement.src = allProduct[firstImageIndex].source;
     allProduct[firstImageIndex].shown++;
@@ -73,7 +96,12 @@ function renderThreeImages(){
     // console.log(allProduct);
 }
 
+
+
 renderThreeImages();
+
+
+
 
 // event listener
 
@@ -100,17 +128,26 @@ function handleUserClick(event) {
         secondImageElement.removeEventListener('click', handleUserClick)
         thirdImageElement.removeEventListener('click', handleUserClick)
 
+        for (let i = 0; i < allProduct.length; i++) {
+            productvote.push(allProduct[i].votes);
+            productshown.push(allProduct[i].shown);
+        }
+        
+
+        
 
         let list = document.getElementById('result');
         let btn=document.getElementById('btn');
         btn.addEventListener('click' , clickit)
         function clickit(){
-        let liElement;
-        for (let i = 0; i < allProduct.length; i++) {
-            liElement = document.createElement('li');
-            list.appendChild(liElement);
-            liElement.textContent = `${allProduct[i].name} has ${allProduct[i].votes}  votes , shown ${allProduct[i].shown}`;
-        }
+            chartshown();
+            
+        // let liElement;
+        // for (let i = 0; i < allProduct.length; i++) {
+        //     liElement = document.createElement('li');
+        //     list.appendChild(liElement);
+        //     liElement.textContent = `${allProduct[i].name} has ${allProduct[i].votes}  votes , shown ${allProduct[i].shown}`;
+        // }
     }
     }
 }
@@ -153,3 +190,35 @@ function handleUserClick(event) {
 // eqlArray(marks);
 
 //////////////////////////////////////////
+
+
+
+function chartshown (){
+    let ctx = document.getElementById('myChart').getContext('2d');
+    let myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: productname ,
+        datasets: [{
+            label: '# of product Votes',
+            data: productvote ,
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',              
+            borderColor:'rgba(255, 99, 132, 1)',
+            borderWidth: 1
+        },
+        {
+            label: '# of product shown',
+            backgroundColor: 'blue',
+            borderColor: 'blue',
+            data: productshown
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+}
